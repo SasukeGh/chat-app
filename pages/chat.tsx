@@ -74,16 +74,16 @@ const ChatPage = () => {
 
     fetchMessages();
 
-    // Set up real-time subscription
-    const subscription = supabase
-      .from('messages')
-      .on('INSERT', (payload: any) => {
+    // Real-time subscription using supabase.channel()
+    const channel = supabase
+      .channel('messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
         setMessages((prevMessages) => [...prevMessages, payload.new]);
       })
       .subscribe();
 
     return () => {
-      supabase.removeSubscription(subscription);
+      supabase.removeSubscription(channel);
     };
   }, [user, userHandle]);
 
