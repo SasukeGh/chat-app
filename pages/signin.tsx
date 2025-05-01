@@ -12,7 +12,7 @@ const SignIn = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    const { user, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -20,7 +20,8 @@ const SignIn = () => {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/index') // Redirect to the chat page after successful sign-in
+      // If sign-in is successful, redirect to the chat page
+      router.push('/chat')
     }
   }
 
