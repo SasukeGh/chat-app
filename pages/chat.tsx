@@ -2,18 +2,17 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_CHATURL as string, // Supabase URL
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_CHATKEY as string // Supabase anon key
+  process.env.NEXT_PUBLIC_SUPABASE_CHATURL as string,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_CHATKEY as string
 );
 
 const ChatPage = () => {
   const [messages, setMessages] = useState<any[]>([]);
   const [messageInput, setMessageInput] = useState('');
-  const [user, setUser] = useState<any>(null); // Assume this is coming from your sign-in logic
+  const [user, setUser] = useState<any>(null);
   const [userHandle, setUserHandle] = useState<string | null>(null);
   const [handleInput, setHandleInput] = useState('');
 
-  // Fetch user details on first render
   useEffect(() => {
     const getUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -23,7 +22,6 @@ const ChatPage = () => {
     getUser();
   }, []);
 
-  // Fetch user handle after login
   useEffect(() => {
     if (user) {
       const fetchHandle = async () => {
@@ -44,7 +42,6 @@ const ChatPage = () => {
     }
   }, [user]);
 
-  // Handle form submission for creating a handle
   const submitHandle = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase
@@ -58,7 +55,6 @@ const ChatPage = () => {
     }
   };
 
-  // Fetch messages for the logged-in user
   useEffect(() => {
     if (!user || !userHandle) return;
 
@@ -78,6 +74,7 @@ const ChatPage = () => {
 
     fetchMessages();
 
+    // Set up real-time subscription
     const subscription = supabase
       .from('messages')
       .on('INSERT', (payload: any) => {
@@ -90,7 +87,6 @@ const ChatPage = () => {
     };
   }, [user, userHandle]);
 
-  // Send message to database
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (messageInput.trim() === '') return;
@@ -117,7 +113,6 @@ const ChatPage = () => {
     <div className="chat-container">
       <h1 className="text-xl font-bold">Chat</h1>
 
-      {/* Handle creation if user doesn't have one */}
       {user && !userHandle && (
         <form onSubmit={submitHandle} className="handle-form">
           <input
@@ -133,7 +128,6 @@ const ChatPage = () => {
         </form>
       )}
 
-      {/* Chat messages */}
       <div className="messages">
         {messages.map((msg: any) => (
           <div key={msg.id} className="message">
@@ -143,7 +137,6 @@ const ChatPage = () => {
         ))}
       </div>
 
-      {/* Message input */}
       {userHandle && (
         <form onSubmit={sendMessage} className="send-message-form">
           <input
